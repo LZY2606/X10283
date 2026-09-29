@@ -1,0 +1,46 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'quic.court'
+version = '1.0.0'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'io.javalin:javalin:6.3.0'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.2'
+    implementation 'org.xerial:sqlite-jdbc:3.46.1.3'
+    implementation 'org.slf4j:slf4j-simple:2.0.16'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.3'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+application {
+    mainClass = 'quic.court.Main'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+    testLogging {
+        events 'passed', 'skipped', 'failed'
+    }
+}
+
+tasks.register('generateCase', JavaExec) {
+    group = 'application'
+    description = 'Regenerate the offline QUIC court case pack resource'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'quic.court.casepack.CasePackGenerator'
+    args = [file('src/main/resources/casepacks/court-v1.json').absolutePath]
+}
